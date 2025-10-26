@@ -20,7 +20,6 @@ type Address struct {
 	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty"`
 }
 
-// BeforeCreate will set a UUID rather than numeric ID.
 func (address *Address) BeforeCreate(tx *gorm.DB) (err error) {
 	address.ID = uuid.New()
 	return

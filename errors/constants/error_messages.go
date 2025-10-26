@@ -3,9 +3,8 @@ package constants
 // Error Message Keys
 const (
 	// General Errors
-	UnexpectedError     = "unexpected_error"
-	UnprocessableEntity = "unprocessable_entity"
-	ValidationError     = "validation_error"
+	UnexpectedError = "unexpected_error"
+	ValidationError = "validation_error"
 
 	// Address Errors
 	FailedToCreateAddress  = "failed_to_create_address"

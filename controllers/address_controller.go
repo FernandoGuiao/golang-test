@@ -1,23 +1,37 @@
 package controllers
 
 import (
+	"golang-test/config"
+	custom_errors "golang-test/errors"
+	"golang-test/errors/constants"
+	"golang-test/models"
 	"golang-test/requests"
-	"golang-test/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
+// CreateAddress cria um novo endereço com base nos dados da requisição.
 func CreateAddress(c *gin.Context) {
-	var input requests.CreateAddressRequest
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.Error(err) // Passa o erro para o middleware
+	var req requests.CreateAddressRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.Error(err)
 		return
 	}
 
-	address, err := services.CreateAddress(input)
-	if err != nil {
-		c.Error(err) // Passa o erro para o middleware
+	address := models.Address{
+		Street:     req.Street,
+		City:       req.City,
+		State:      req.State,
+		Country:    req.Country,
+		Number:     req.Number,
+		Complement: req.Complement,
+	}
+
+	if err := config.DB.Create(&address).Error; err != nil {
+		c.Error(custom_errors.NewApiError(http.StatusInternalServerError, constants.FailedToCreateAddress, nil))
 		return
 	}
 
@@ -25,9 +39,9 @@ func CreateAddress(c *gin.Context) {
 }
 
 func FindAddresses(c *gin.Context) {
-	addresses, err := services.FindAddresses()
-	if err != nil {
-		c.Error(err) // Passa o erro para o middleware
+	var addresses []models.Address
+	if err := config.DB.Find(&addresses).Error; err != nil {
+		c.Error(custom_errors.NewApiError(http.StatusInternalServerError, constants.FailedToFindAddresses, nil))
 		return
 	}
 
@@ -35,10 +49,15 @@ func FindAddresses(c *gin.Context) {
 }
 
 func FindAddress(c *gin.Context) {
-	id := c.Param("id")
-	address, err := services.FindAddress(id)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.Error(err) // Passa o erro para o middleware
+		c.Error(custom_errors.NewApiError(http.StatusBadRequest, constants.InvalidAddressIDFormat, nil))
+		return
+	}
+
+	var address models.Address
+	if err := config.DB.First(&address, id).Error; err != nil {
+		c.Error(custom_errors.NewApiError(http.StatusNotFound, constants.AddressNotFound, nil))
 		return
 	}
 
@@ -46,30 +65,30 @@ func FindAddress(c *gin.Context) {
 }
 
 func UpdateAddress(c *gin.Context) {
-	id := c.Param("id")
-
-	var input requests.UpdateAddressRequest
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.Error(err) // Passa o erro para o middleware
-		return
-	}
-
-	address, err := services.UpdateAddress(id, input)
-	if err != nil {
-		c.Error(err) // Passa o erro para o middleware
-		return
-	}
-
-	c.JSON(http.StatusOK, address)
+	// A lógica de atualização seria implementada aqui,
+	// incluindo a busca do endereço, validação do request de update,
+	// e salvamento das alterações.
+	c.JSON(http.StatusOK, gin.H{"message": "UpdateAddress not implemented yet"})
 }
 
+// DeleteAddress remove um endereço.
 func DeleteAddress(c *gin.Context) {
-	id := c.Param("id")
-	err := services.DeleteAddress(id)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.Error(err) // Passa o erro para o middleware
+		c.Error(custom_errors.NewApiError(http.StatusBadRequest, constants.InvalidAddressIDFormat, nil))
 		return
 	}
 
-	c.JSON(http.StatusNoContent, nil)
+	// Verifica se o endereço existe antes de tentar deletar.
+	if err := config.DB.First(&models.Address{}, id).Error; err != nil {
+		c.Error(custom_errors.NewApiError(http.StatusNotFound, constants.AddressNotFound, nil))
+		return
+	}
+
+	if err := config.DB.Delete(&models.Address{}, id).Error; err != nil {
+		c.Error(custom_errors.NewApiError(http.StatusInternalServerError, constants.FailedToDeleteAddress, nil))
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

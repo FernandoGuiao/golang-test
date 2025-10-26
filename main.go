@@ -14,6 +14,9 @@ func main() {
 	// Connect to database
 	config.ConnectDatabase()
 
+	// Setup validator
+	config.SetupValidator()
+
 	// Migrate the schema
 	err := config.DB.AutoMigrate(&models.Address{})
 	if err != nil {

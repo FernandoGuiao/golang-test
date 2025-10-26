@@ -1,7 +1,7 @@
 package errors
 
 import (
-	"golang-test/constants"
+	"golang-test/errors/constants"
 	"net/http"
 )
 
@@ -29,10 +29,6 @@ func AddressNotFoundError() *ApiError {
 
 func InvalidAddressIDFormatError() *ApiError {
 	return NewApiError(http.StatusBadRequest, constants.InvalidAddressIDFormat, nil)
-}
-
-func UnprocessableEntityError(data interface{}) *ApiError {
-	return NewApiError(http.StatusUnprocessableEntity, constants.UnprocessableEntity, data)
 }
 
 func ValidationError(data interface{}) *ApiError {

@@ -1,6 +1,8 @@
 package utils
 
-import "golang-test/constants"
+import (
+	"golang-test/errors/constants"
+)
 
 // Business Error Functions
 
