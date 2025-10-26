@@ -15,7 +15,7 @@ func main() {
 	config.ConnectDatabase()
 
 	// Setup validator
-	config.SetupValidator()
+	config.SetupValidator() //TODO colocar o setup validator para inicializar em um middleware para pegar o header de linguagem
 
 	// Migrate the schema
 	err := config.DB.AutoMigrate(&models.Address{})
