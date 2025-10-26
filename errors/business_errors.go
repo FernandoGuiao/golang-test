@@ -5,8 +5,6 @@ import (
 	"net/http"
 )
 
-// Business Error Functions
-
 func FailedToCreateAddressError() *ApiError {
 	return NewApiError(http.StatusInternalServerError, constants.FailedToCreateAddress, nil)
 }

@@ -12,12 +12,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateAddress cria um novo endereço com base nos dados da requisição.
 func CreateAddress(c *gin.Context) {
 	var req requests.CreateAddressRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -31,7 +30,7 @@ func CreateAddress(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&address).Error; err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusInternalServerError, constants.FailedToCreateAddress, nil))
+		_ = c.Error(custom_errors.FailedToCreateAddressError())
 		return
 	}
 
@@ -41,7 +40,7 @@ func CreateAddress(c *gin.Context) {
 func FindAddresses(c *gin.Context) {
 	var addresses []models.Address
 	if err := config.DB.Find(&addresses).Error; err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusInternalServerError, constants.FailedToFindAddresses, nil))
+		_ = c.Error(custom_errors.FailedToFindAddressesError())
 		return
 	}
 
@@ -51,13 +50,13 @@ func FindAddresses(c *gin.Context) {
 func FindAddress(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusBadRequest, constants.InvalidAddressIDFormat, nil))
+		_ = c.Error(custom_errors.FailedToFindAddressError())
 		return
 	}
 
 	var address models.Address
 	if err := config.DB.First(&address, id).Error; err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusNotFound, constants.AddressNotFound, nil))
+		_ = c.Error(custom_errors.NewApiError(http.StatusNotFound, constants.AddressNotFound, nil))
 		return
 	}
 
@@ -71,22 +70,20 @@ func UpdateAddress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "UpdateAddress not implemented yet"})
 }
 
-// DeleteAddress remove um endereço.
 func DeleteAddress(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusBadRequest, constants.InvalidAddressIDFormat, nil))
+		_ = c.Error(custom_errors.InvalidAddressIDFormatError())
 		return
 	}
 
-	// Verifica se o endereço existe antes de tentar deletar.
 	if err := config.DB.First(&models.Address{}, id).Error; err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusNotFound, constants.AddressNotFound, nil))
+		_ = c.Error(custom_errors.AddressNotFoundError())
 		return
 	}
 
 	if err := config.DB.Delete(&models.Address{}, id).Error; err != nil {
-		c.Error(custom_errors.NewApiError(http.StatusInternalServerError, constants.FailedToDeleteAddress, nil))
+		_ = c.Error(custom_errors.FailedToDeleteAddressError())
 		return
 	}
 
