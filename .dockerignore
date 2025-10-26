@@ -1,0 +1,23 @@
+# VCS
+.git
+.gitignore
+
+# Docker artifacts
+Dockerfile
+docker-compose.yml
+
+# Binaries
+app
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Build caches
+bin/
+obj/
+*.out
+*.log
+
+# Node and front-end (if present)
+node_modules/
